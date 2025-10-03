@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #data-container { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Demo</h1>
+    <p>Last update: <span id="last-update">...</span></p>
+
+    <div id="data-container">
+        Loading data...
+    </div>
+
+    <script>
+        const container = document.getElementById('data-container');
+        const updateTime = document.getElementById('last-update');
+        const phpEndpoint = 'index.php';
+
+        function updateTable() {
+            fetch(phpEndpoint)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    container.innerHTML = html;
+                    
+                    const now = new Date();
+                    updateTime.textContent = now.toLocaleTimeString();
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    container.innerHTML = '<p style="color: red;">Failed to load data. Check console for details.</p>';
+                });
+        }
+
+        updateTable();
+
+        setInterval(updateTable, 2000);
+    </script>
+
+</body>
+</html>

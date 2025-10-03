@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # 1. MSSQL Database Service
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest # Use a stable version
+    container_name: mssql_db
+    environment:
+      # Required to accept the End-User License Agreement
+      ACCEPT_EULA: 'Y'
+      # Set a strong SA password (must meet complexity requirements)
+      MSSQL_SA_PASSWORD: 'Password.1'
+      # Use Developer edition (free for development)
+      MSSQL_PID: 'Developer'
+    ports:
+      # Map the default MSSQL port to the host machine
+      - '1433:1433'
+    volumes:
+      # Persist the database data
+      - mssql_data:/var/opt/mssql
+
+  # 2. PHP-FPM Service with MS SQL Drivers
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile-php
+    container_name: php_app
+    volumes:
+      # Mount your PHP application code
+      - ./app:/var/www/html
+    # Links this service to the database service for DNS resolution
+    depends_on:
+      - db
+
+  # 3. Nginx Web Server Service
+  web:
+    image: nginx:latest
+    container_name: web_server
+    volumes:
+      # Mount your PHP application code
+      - ./app:/var/www/html
+      # Mount the custom Nginx config
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      # Expose Nginx on port 80 of the host
+      - '8080:80'
+    depends_on:
+      - php
+
+# Define the volume for persistent MSSQL data
+volumes:
+  mssql_data:
