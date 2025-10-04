@@ -6,7 +6,7 @@ $connectionOptions = array(
     "PWD" => "Password.1"
 );
 
-$target_user_id = 1;
+$target_user_id = 0;
 
 $conn = sqlsrv_connect($serverName, $connectionOptions);
 
